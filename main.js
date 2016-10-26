@@ -18,6 +18,8 @@ var inAnObject = {
 
 var inAFunction = function(a, b) {
     this.name = 'Sally';
+    console.log('This inside inAFunction is ...', this);
+    this.test4 = whatIsThis;
     whatIsThis(a, b);
 };
 
@@ -49,7 +51,7 @@ var confusing = {
 // * Problem 1
 // whatIsThis('hello', 'world');
 /*
-- "this" is ... "this" is defined as the "window" object.
+- "this" is ... "this" references the global object, in this case, window.
 
 - because ... the calling function is an anonymous function assigned to a global var. The top-most object in the global namespace is the containing environment, in this case : the window object.
 
@@ -66,9 +68,9 @@ b =  world
 // * Problem 2
 // window.whatIsThis('hello', 'world');
 /*
-- "this" is ... Again... 'this' is referencing the "window" object.
+- "this" is window or undefined.
 
-- because ... This time it is because the function is being called explicitly as a method in the window objects environment.
+- because ... This time it is because the function is being called implicitly as a method in the window objects environment, which would exist only in browser.
 
 My console output:
 window.whatIsThis('hello', 'world');
@@ -346,12 +348,17 @@ b =  happen?
 
 
 // * Problem 17
+//line 212:
 // var newObject = new inAFunction('what will', 'happen?');
+// newObject.test4('now', 'what');
 // newObject.test3('C', 'D');
 /*
-- "this" is ...
+- "this" is initially Window or global, then it's 'inAFunction'
 
-- because ...
+- because it
+-- line 212 - initially did a new bind
+-- the call to whatIsThis on line 23 reset the bind to the default 'window'
+-- the test4 call retained the newObject context, as did test3
 
 In the first statement, "this" is the window object -- the global environment. The variable "newObject" has a new function assigned to it, which was instantiated from the prototype of "inAFunction" with the "new" keyword. When creating it, it passed 2 parameters "what will" and "happen", which get passed as the new function is executed upon instantiation.
 
@@ -396,10 +403,7 @@ b =  book
 // inAnObject.anotherObject.test2.apply(confusing, ['foo', 'bar']);
 /*
 - "this" is ..."this" is the "confusing" object (aptly named)...
-- because ... the test2 method of the anotherObject method of the inAnObject object is being called. It is passed to the .apply() function, which passes in the "this" of the "confusing" object, along with an array with two elements "foo" and "bar". This array is then passed to the function called by test2, which is the "whatIsThis" function.
-
-Somehow (and this I don't quite understand yet) the array is deconstructed before being passed to the "whatIsThis" function?
-
+- because ... the test2 method of the anotherObject method of the inAnObject object is being called. It is passed to the .apply() function, which passes in the "this" of the "confusing" object, along with an array with two elements "foo" and "bar". This array is then parsed and then passed to the function called by test2, which is the "whatIsThis" function.
 
 My console.log output:
 inAnObject.anotherObject.test2.apply(confusing, ['foo', 'bar']);
